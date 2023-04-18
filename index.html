@@ -6,6 +6,8 @@
     <title>Display a map</title>
     <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no" />
     <script src="tokml.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/wellknown@0.5.0/wellknown.min.js"></script>
+
     <script src="https://api.mapbox.com/mapbox-gl-js/v1.10.1/mapbox-gl.js"></script>
     <link href="https://api.mapbox.com/mapbox-gl-js/v1.10.1/mapbox-gl.css" rel="stylesheet" />
     <style>
@@ -135,14 +137,15 @@
 
             map.on('click', 'sigef-snci-layer', function (e) {
 
-                var pixel = e.point;
-                var lngLat = map.unproject(pixel);
-                mouseCoords = lngLat
+                // var pixel = e.point;
+                // var lngLat = map.unproject(pixel);
+                // mouseCoords = lngLat
 
+                const num_certif = e.features[0].properties.num_certif;
                 new mapboxgl.Popup({ maxWidth: 300 })
                     .setLngLat(e.lngLat)
                     .setHTML('<b>Imóvel: </b>' + e.features[0].properties.nome_imove + '</br>' + '<b> CIR: </b>' + e.features[0].properties.cod_imovel + '</br>' + '<b> Certificação: </b>' + e.features[0].properties.num_certif + '</br>' + '<b> Área: </b>' + e.features[0].properties.qtd_area_p + '</br>' + '<b> Cód. do Profissional: </b>' + e.features[0].properties.cod_profis + '</br>' +
-                        `<button data-point="" data-layer="sigef-snci-layer">Download KML</button>`)
+                        `<button data-certif="${num_certif}" data-layer="sigef-snci-layer">Download KML</button>`)
                     .addTo(map);
 
             });
@@ -270,9 +273,11 @@
             map.on('click', 'sigef-sp-layer', function (e) {    //Referência ao Nome da Layer
 
 
-                var pixel = e.point;
-                var lngLat = map.unproject(pixel);
-                mouseCoords = lngLat
+                // var pixel = e.point;
+                // var lngLat = map.unproject(pixel);
+                // mouseCoords = lngLat
+
+                const num_certif = e.features[0].properties.num_certif;
 
                 new mapboxgl.Popup({ maxWidth: 300 })
                     .setLngLat(e.lngLat)
@@ -289,7 +294,7 @@
                         + e.features[0].properties.parcela_co + '" target="_blank">'
 
                         + e.features[0].properties.parcela_co + '</a></br></br>'
-                        + `<button data-layer="sigef-sp-layer">Download KML</button>`
+                        + `<button  data-certif="${num_certif}" data-layer="sigef-sp-layer">Download KML</button>`
                     )
                     .addTo(map);
 
@@ -325,33 +330,49 @@
 
             console.log('event', event);
             //queryFeatures('sigef-snci-layer', e);
-            if (event.target.dataset.layer) {
-                queryFeatures(event.target.dataset.layer, event);
+            if (event.target.dataset.certif) {
+                queryFeatures(event.target.dataset.certif);
             }
         })
 
-        function queryFeatures(layer, e) {
+        function queryFeatures(certif) {
 
-            map.flyTo({
-                center: mouseCoords,
-                zoom: 10
-            });
 
-            map.once('idle', () => {
-                const pixel = map.project(mouseCoords);
-                const features = map.queryRenderedFeatures(pixel, {
-                    layers: [layer]
-                });
-                if (features.length > 0) {
-                    const geojson = JSON.stringify(features[0])
-                    console.log('geojson', geojson);
-                    downloadAsFile(
-                        tokml(features[0]),
-                        "geometry.kml",
-                        "application/json"
-                    );
-                }
-            });
+            console.log('certif', certif);
+
+            fetch("https://trgeo.com.br/clientes/teste2/api.php?id=" + certif)
+                .then(data => data.json())
+                .then(json => {
+                    console.log('json', json);
+                    if (json.geometry) {
+
+                        //convert WTK to geoJSON
+
+                        const geojson = wellknown.parse(json.geometry)
+
+                        downloadAsFile(
+                            tokml(geojson),
+                            "geometry.kml",
+                            "application/json"
+                        );
+                    }
+                })
+
+            // map.once('idle', () => {
+            //     const pixel = map.project(mouseCoords);
+            //     const features = map.queryRenderedFeatures(pixel, {
+            //         layers: [layer]
+            //     });
+            //     if (features.length > 0) {
+            //         const geojson = JSON.stringify(features[0])
+            //         console.log('geojson', geojson);
+            //         downloadAsFile(
+            //             tokml(features[0]),
+            //             "geometry.kml",
+            //             "application/json"
+            //         );
+            //     }
+            // });
         }
 
         function downloadAsFile(content, fileName, contentType) {
