@@ -145,7 +145,7 @@
                 new mapboxgl.Popup({ maxWidth: 300 })
                     .setLngLat(e.lngLat)
                     .setHTML('<b>Imóvel: </b>' + e.features[0].properties.nome_imove + '</br>' + '<b> CIR: </b>' + e.features[0].properties.cod_imovel + '</br>' + '<b> Certificação: </b>' + e.features[0].properties.num_certif + '</br>' + '<b> Área: </b>' + e.features[0].properties.qtd_area_p + '</br>' + '<b> Cód. do Profissional: </b>' + e.features[0].properties.cod_profis + '</br>' +
-                        `<button data-fieldname="num_certif" data-fieldvalue="${num_certif}" data-layer="sigef-snci-layer">Download KML</button>`)
+                        `<div data-fieldname="num_certif" data-fieldvalue="${num_certif}" style="cursor:pointer; text-decoration: underline; color: blue">Download KML</div>`)
                     .addTo(map);
 
             });
@@ -186,7 +186,7 @@
                 const nr_process = e.features[0].properties.nr_process;
                 const html = `
                 <b> Quilombola: </b>${e.features[0].properties.nm_comunid}</br><b> Processo: </b> ${e.features[0].properties.nr_process} </br>
-                <button data-fieldname="nr_process" data-fieldvalue="${nr_process}" data-layer="sigef-sp-layer">Download KML</button>
+                <div data-fieldname="nr_process" data-fieldvalue="${nr_process}" style="cursor:pointer; text-decoration: underline; color: blue">Download KML</div>
                 `
                 new mapboxgl.Popup({ maxWidth: 300 })
                     .setLngLat(e.lngLat)
@@ -234,7 +234,7 @@
                 const cd_sipra = e.features[0].properties.cd_sipra;
                 const html = `
                 <b> Assentamento: </b>${e.features[0].properties.nome_proje} </br><b> Cód. Sipra: </b> ${e.features[0].properties.cd_sipra} </br>
-                <button data-fieldname="cd_sipra" data-fieldvalue="${cd_sipra}" data-layer="sigef-sp-layer">Download KML</button>
+                <div data-fieldname="cd_sipra" data-fieldvalue="${cd_sipra}" style="cursor:pointer; text-decoration: underline; color: blue">Download KML</div>
                 `
                 new mapboxgl.Popup({ maxWidth: 300 })
                     .setLngLat(e.lngLat)
@@ -308,7 +308,9 @@
                         + e.features[0].properties.parcela_co + '" target="_blank">'
 
                         + e.features[0].properties.parcela_co + '</a></br></br>'
-                        + `<button data-fieldname="num_certif" data-fieldvalue="${num_certif}" data-layer="sigef-sp-layer">Download KML</button>`
+                        + `
+                        <div data-fieldname="num_certif" data-fieldvalue="${num_certif}" style="cursor:pointer; text-decoration: underline; color: blue">Download KML</div>
+                        `
                     )
                     .addTo(map);
 
