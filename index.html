@@ -140,6 +140,7 @@
                 // var pixel = e.point;
                 // var lngLat = map.unproject(pixel);
                 // mouseCoords = lngLat
+                console.log('e.features[0]', e.features[0]);
 
                 const num_certif = e.features[0].properties.num_certif;
                 new mapboxgl.Popup({ maxWidth: 300 })

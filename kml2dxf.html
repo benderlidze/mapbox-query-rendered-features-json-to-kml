@@ -7,6 +7,7 @@
     <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no" />
     <script src="tokml.js"></script>
     <script src="togeojson.js"></script>
+    <script src="dxf.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/wellknown@0.5.0/wellknown.min.js"></script>
 
     <style>
@@ -46,7 +47,61 @@
             })
 
 
-       
+        var Drawing = require('Drawing');
+        window.onload = function () {
+            d = new Drawing();
+
+            d.setUnits('Decimeters');
+            d.drawText(10, 0, 10, 0, 'Hello World'); // draw text in the default layer named "0"
+            d.addLayer('l_green', Drawing.ACI.GREEN, 'CONTINUOUS');
+            d.setActiveLayer('l_green');
+            d.drawText(20, -70, 10, 0, 'go green!');
+
+            //or fluent
+            d.addLayer('l_yellow', Drawing.ACI.YELLOW, 'DASHED')
+                .setActiveLayer('l_yellow')
+                .drawCircle(50, -30, 25);
+
+            var b = new Blob([d.toDxfString()], { type: 'application/dxf' });
+            document.getElementById('dxf').href = URL.createObjectURL(b);
+        }
+
+        // Load GeoJSON data
+        var geojson = {
+            "type": "FeatureCollection",
+            "features": [{
+                "type": "Feature", "properties": {}, "geometry": {
+                    "type": "Polygon", "coordinates": [[
+                        [-87.63046264648438, 41.87460522890975],
+                        [-87.62565612792969, 41.869108361609416],
+                        [-87.61878967285156, 41.8727152996228],
+                        [-87.62428283691406, 41.87743834586241],
+                        [-87.63046264648438, 41.87460522890975]
+                    ]
+                    ]
+                }
+            }
+            ]
+        };
+
+        // // Convert GeoJSON data to DXF
+        // var dxfDoc = new dxf.Document();
+        // var entities = [];
+        // geojson.features.forEach(function (feature) {
+        //     var geometry = feature.geometry;
+        //     if (geometry.type === 'Polygon') {
+        //         // Add a polyline to the DXF document
+        //         var coords = geometry.coordinates[0];
+        //         var polyline = new dxf.Polyline();
+        //         polyline.setVertices(coords);
+        //         entities.push(polyline);
+        //     }
+        // });
+        // dxfDoc.addEntities(entities);
+
+        // // Save DXF file
+        // var dxfString = dxfDoc.toString();
+        // console.log(dxfString);
 
 
     </script>

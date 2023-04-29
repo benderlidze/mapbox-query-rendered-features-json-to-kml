@@ -145,7 +145,7 @@
                 new mapboxgl.Popup({ maxWidth: 300 })
                     .setLngLat(e.lngLat)
                     .setHTML('<b>Imóvel: </b>' + e.features[0].properties.nome_imove + '</br>' + '<b> CIR: </b>' + e.features[0].properties.cod_imovel + '</br>' + '<b> Certificação: </b>' + e.features[0].properties.num_certif + '</br>' + '<b> Área: </b>' + e.features[0].properties.qtd_area_p + '</br>' + '<b> Cód. do Profissional: </b>' + e.features[0].properties.cod_profis + '</br>' +
-                        `<button data-certif="${num_certif}" data-layer="sigef-snci-layer">Download KML</button>`)
+                        `<button data-fieldname="num_certif" data-fieldvalue="${num_certif}" data-layer="sigef-snci-layer">Download KML</button>`)
                     .addTo(map);
 
             });
@@ -182,9 +182,15 @@
             });
 
             map.on('click', 'quilombola-layer', function (e) {
+
+                const nr_process = e.features[0].properties.nr_process;
+                const html = `
+                <b> Quilombola: </b>${e.features[0].properties.nm_comunid}</br><b> Processo: </b> ${e.features[0].properties.nr_process} </br>
+                <button data-fieldname="nr_process" data-fieldvalue="${nr_process}" data-layer="sigef-sp-layer">Download KML</button>
+                `
                 new mapboxgl.Popup({ maxWidth: 300 })
                     .setLngLat(e.lngLat)
-                    .setHTML('<b> Quilombola: </b>' + e.features[0].properties.nm_comunid + '</br>' + '<b> Processo: </b>' + e.features[0].properties.nr_process + '</br>')
+                    .setHTML(html)
                     .addTo(map);
 
             });
@@ -224,13 +230,15 @@
 
             map.on('click', 'assentamentos-layer', function (e) {
 
-
                 console.log('e.features[0]', e.features[0]);
-                const num_certif = e.features[0].properties.cd_sipra;
-
+                const cd_sipra = e.features[0].properties.cd_sipra;
+                const html = `
+                <b> Assentamento: </b>${e.features[0].properties.nome_proje} </br><b> Cód. Sipra: </b> ${e.features[0].properties.cd_sipra} </br>
+                <button data-fieldname="cd_sipra" data-fieldvalue="${cd_sipra}" data-layer="sigef-sp-layer">Download KML</button>
+                `
                 new mapboxgl.Popup({ maxWidth: 300 })
                     .setLngLat(e.lngLat)
-                    .setHTML('<b> Assentamento: </b>' + e.features[0].properties.nome_proje + '</br>' + '<b> Cód. Sipra: </b>' + e.features[0].properties.cd_sipra + '</br>')
+                    .setHTML(html)
                     .addTo(map);
 
             });
@@ -300,7 +308,7 @@
                         + e.features[0].properties.parcela_co + '" target="_blank">'
 
                         + e.features[0].properties.parcela_co + '</a></br></br>'
-                        + `<button  data-certif="${num_certif}" data-layer="sigef-sp-layer">Download KML</button>`
+                        + `<button data-fieldname="num_certif" data-fieldvalue="${num_certif}" data-layer="sigef-sp-layer">Download KML</button>`
                     )
                     .addTo(map);
 
@@ -336,26 +344,23 @@
 
             console.log('event', event);
             //queryFeatures('sigef-snci-layer', e);
-            if (event.target.dataset.certif) {
-                queryFeatures(event.target.dataset.certif);
+            if (event.target.dataset.fieldvalue && event.target.dataset.fieldname) {
+                const fieldname = event.target.dataset.fieldname;
+                const fieldvalue = event.target.dataset.fieldvalue;
+                queryFeatures(fieldname, fieldvalue);
             }
         })
 
-        function queryFeatures(certif) {
+        function queryFeatures(fieldname, fieldvalue) {
 
-
-            console.log('certif', certif);
-
-            fetch("https://trgeo.com.br/clientes/teste2/api.php?id=" + certif)
+            console.log('queryFeatures', fieldname, fieldvalue);
+            fetch("https://trgeo.com.br/clientes/teste2/api.php?field=" + fieldname + "&value=" + fieldvalue)
                 .then(data => data.json())
                 .then(json => {
                     console.log('json', json);
                     if (json.geometry) {
-
                         //convert WTK to geoJSON
-
                         const geojson = wellknown.parse(json.geometry)
-
                         downloadAsFile(
                             tokml(geojson),
                             "geometry.kml",
